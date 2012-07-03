@@ -20,7 +20,7 @@ default
         When 'x' is 0, align all unnumbered folds
   zxf : Create a new justified open-fold marker of fold-level 'x'
         When 'x' is 0, create new unnumbered open-fold marker
-  zxF : Same as above, but also comment the marker. Requires NERDCommenter
+  zxF : Same as above, but also comments the marker. Requires NERDCommenter
 ````
 
 ##Customisation:    
@@ -31,20 +31,21 @@ variables to set things just the way you want it
 Will use the default mappings specified below.  
 
 `g:OrigamiPadding` ( Default : 0 )  
-Specify extra padding to be added. By default alignment happens on the next
-tabstop  
+Specify extra padding to be added. By default alignment happens on the next tabstop.  
+This behaves differently depending on whether `expandtab` is set or not. If yes, this specifies the number of spaces to insert and if not,  
+it specifies the number of tabs to be inserted.
 
-`g:OrigamiIncAllLines` ( Default : 0 )
-Specify if all lines should be considered while aligning markers. If set to
-1, the markers will be present outside then length of the longest line.  
+`g:OrigamiIncAllLines` ( Default : 0 )  
+Specify if all lines should be considered while aligning markers or only those having the marker.  
+If set to 1, the markers will be present outside the length of the longest line irrespective of if it has a fold-open marker or not.
 
-`g:OrigamiSeparateLvls` ( Default : 0 )
+`g:OrigamiSeparateLvls` ( Default : 0 )  
 Align different fold-levels independently
 
-`g:OrigamiFoldAtCol` ( Default : 0 )
+`g:OrigamiFoldAtCol` ( Default : 0 )  
 Force the markers to align at the specified column. If set to 0, will
 auto-detect alignment position.
 
 
-ToDo:             
+##ToDo:             
 Dunno what to do : /
