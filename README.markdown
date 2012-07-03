@@ -6,7 +6,7 @@ Plugin to satisfy all your folding needs
 
 ##Requirements
 
-##Installation     
+##Installation
 I highly recommend using Pathogen or Vundler to do the dirty work for you. If
 for some reason, you do not want to use any of these excellent plugins, then
 unzip it to your ~/.vim directory. You know how it goes...  
@@ -23,7 +23,7 @@ default
   zxF : Same as above, but also comments the marker. Requires NERDCommenter
 ````
 
-##Customisation:    
+##Customisation
 The defaults not to your liking bub? Have no fear; use the following
 variables to set things just the way you want it  
 
@@ -47,5 +47,5 @@ Force the markers to align at the specified column. If set to 0, will
 auto-detect alignment position.
 
 
-##ToDo:             
-Dunno what to do : /
+##ToDo
+ * Think of things to add here : /
