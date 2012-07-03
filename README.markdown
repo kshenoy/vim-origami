@@ -1,46 +1,50 @@
-# vim-foldit  
-A small plugin to align all the open-fold markers  
+#vim-origami
 
+Plugin to satisfy all your folding needs
+ * Justify all the open-fold markers
+ * Create new open-fold marker and justify it automatically
 
-## Requirements
+##Requirements
 
-
-## Installation
+##Installation     
 I highly recommend using Pathogen or Vundler to do the dirty work for you. If
 for some reason, you do not want to use any of these excellent plugins, then
 unzip it to your ~/.vim directory. You know how it goes...  
 
 So, once that's done, out of the box, the followings mappings are defined by
-default
+default  
 
 ````
-  zjj : Align all folds  
+  ztt : Align all folds  
+  zxt : When 'x' is a number from 1-9, align folds of that particular fold-level
+        When 'x' is 0, align all unnumbered folds
+  zxf : Create a new justified open-fold marker of fold-level 'x'
+        When 'x' is 0, create new unnumbered open-fold marker
+  zxF : Same as above, but also comment the marker. Requires NERDCommenter
 ````
-This will allow the use of default behavior of m to set marks and, if the line
-already contains the mark, it'll be unset.  
-The default behavior of `]'`, `['`, ``]` `` and ``[` `` is supported and enhanced by
-wrapping around when beginning or end of file is reached.  
-  
 
-## Customisation
+##Customisation:    
 The defaults not to your liking bub? Have no fear; use the following
 variables to set things just the way you want it  
 
-`g:FoldItDefaultMappings` ( Default : 1 )  
+`g:OrigamiDefaultMappings` ( Default : 1 )  
 Will use the default mappings specified below.  
 
-`g:FoldItPadding` ( Default : 0 )  
+`g:OrigamiPadding` ( Default : 0 )  
 Specify extra padding to be added. By default alignment happens on the next
 tabstop  
 
-`g:FoldItIncAllLines` ( Default : 0 )
+`g:OrigamiIncAllLines` ( Default : 0 )
 Specify if all lines should be considered while aligning markers. If set to
 1, the markers will be present outside then length of the longest line.  
 
-```
-  <Plug>FIT_JustifyFolds : Align all folds
-```
-  
-## ToDo:
-* Provide Customisation based upon existing settings of softtab, expandtab etc.  
-* Think of things to add here : /  
+`g:OrigamiSeparateLvls` ( Default : 0 )
+Align different fold-levels independently
+
+`g:OrigamiFoldAtCol` ( Default : 0 )
+Force the markers to align at the specified column. If set to 0, will
+auto-detect alignment position.
+
+
+ToDo:             
+Dunno what to do : /
