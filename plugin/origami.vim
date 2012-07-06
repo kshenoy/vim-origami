@@ -1,14 +1,14 @@
-" README:           {{{1
+" README:                                                               {{{1
 " vim-origami, version 1
 " 
-" Description:      {{{2
+" Description:                                                          {{{2
 " Plugin to satisfy all your folding needs
 "  * Justify all the open-fold markers
 "  * Create new open-fold marker and justify it automatically
 " 
-" Requirements:     {{{2
+" Requirements:                                                         {{{2
 " 
-" Installation:     {{{2
+" Installation:                                                         {{{2
 " I highly recommend using Pathogen or Vundler to do the dirty work for you. If
 " for some reason, you do not want to use any of these excellent plugins, then
 " unzip it to your ~/.vim directory. You know how it goes...  
@@ -25,7 +25,7 @@
 "   zxF : Same as above, but also comments the marker. Requires NERDCommenter
 " ````
 " 
-" Customisation:    {{{2
+" Customisation:                                                        {{{2
 " The defaults not to your liking bub? Have no fear; use the following
 " variables to set things just the way you want it  
 " 
@@ -49,11 +49,11 @@
 " auto-detect alignment position.
 " 
 " 
-" ToDo:             {{{2
+" ToDo:                                                                 {{{2
 " * Think of things to add here : /
 " 
 "
-" Maintainer:       {{{2
+" Maintainer:                                                           {{{2
 "   Kartik Shenoy  
 " 
 " Changelist:
@@ -78,18 +78,12 @@ let g:loaded_Origami = "1"  " Version Number
 let s:save_cpo      = &cpo
 set cpo&vim
 
-if !exists('g:OrigamiDefaultMappings')
-    let g:OrigamiDefaultMappings = 1
-endif
-if !exists('g:OrigamiIncAllLines')
-    let g:OrigamiIncAllLines = 0
-endif
-if !exists('g:OrigamiPadding')
-    let g:OrigamiPadding = 0
-endif
-if !exists('g:OrigamiSeparateLvls')
-    let g:OrigamiSeparateLvls = 0
-endif
+if !exists('g:OrigamiDefaultMappings') | let g:OrigamiDefaultMappings = 1 | endif
+if !exists('g:OrigamiIncAllLines')     | let g:OrigamiIncAllLines     = 0 | endif
+if !exists('g:OrigamiPadding')         | let g:OrigamiPadding         = 0 | endif
+if !exists('g:OrigamiSeparateLvls')    | let g:OrigamiSeparateLvls    = 0 | endif
+if !exists('g:OrigamiFoldAtCol')       | let g:OrigamiFoldAtCol       = 0 | endif
+
 if exists('g:OrigamiFoldAtCol') && g:OrigamiFoldAtCol > 0
     let g:OrigamiSeparateLvls = 0
     let g:OrigamiPadding    = 0
@@ -104,6 +98,17 @@ endfor
 nnoremap <silent> z0t :call origami#TidyFolds(0)<CR>
 nmap <silent> z0f   A{{{<ESC>z0t
 nmap <silent> z0F ,cA{{{<ESC>z0t
+
+
+if has('autocmd')
+    augroup gami_autocmds
+        autocmd!
+        autocmd BufReadPre * if !exists('b:OrigamiIncAllLines')  | let b:OrigamiIncAllLines  = g:OrigamiIncAllLines  | endif
+        autocmd BufReadPre * if !exists('b:OrigamiPadding')      | let b:OrigamiPadding      = g:OrigamiPadding      | endif
+        autocmd BufReadPre * if !exists('b:OrigamiSeparateLvls') | let b:OrigamiSeparateLvls = g:OrigamiSeparateLvls | endif
+        autocmd BufReadPre * if !exists('b:OrigamiFoldAtCol')    | let b:OrigamiFoldAtCol    = g:OrigamiFoldAtCol    | endif
+    augroup END
+endif
 
 
 "===============================================================================
