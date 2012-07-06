@@ -34,8 +34,8 @@ The defaults not to your liking bub? Have no fear; use the following variables t
 * `g:OrigamiPadding` ( Default : 0 )  
   Specify extra padding to be added. By default alignment happens on the next tabstop.  
   `b:OrigamiPadding` can be specified separately for buffer-specific settings.  
-  This behaves differently depending on whether `expandtab` is set or not. If yes, this specifies the number of spaces to insert and if not,  
-  it specifies the number of tabs to be inserted.
+  This behaves differently depending on whether `expandtab` is set or not. If yes, 
+  this specifies the number of spaces to insert and if not, it specifies the number of tabs to be inserted.
 
 * `g:OrigamiFoldAtCol` ( Default : 0 )  
   Force the markers to align at the specified column. If set to 0, will auto-detect alignment position.  
@@ -50,7 +50,7 @@ The defaults not to your liking bub? Have no fear; use the following variables t
   Align different fold-levels independently
   `b:OrigamiSeparateLvls` can be specified separately for buffer-specific settings.  
   
-Note: Priority of settings is FoldAtCol > IncAllLines > SeparateLvls
+**Note:** Priority of settings is FoldAtCol > IncAllLines > SeparateLvls
 
 
 ##ToDo
