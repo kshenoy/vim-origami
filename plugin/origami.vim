@@ -98,7 +98,7 @@ endif
 nnoremap <silent> ztt :call origami#TidyFolds("%")<CR>
 for i in range(1, 9)
     silent exec 'nnoremap <silent> z' . i . 't :call origami#TidyFolds(' . i . ')<CR>'
-    silent exec 'nmap <silent> z' . i . 'f   A{{{' . i . '<ESC>z' . i . 't'
+    silent exec 'nmap <silent> z' . i . 'f   A {{{' . i . '<ESC>z' . i . 't'
     silent exec 'nmap <silent> z' . i . 'F ,cA{{{' . i . '<ESC>z' . i . 't'
 endfor
 nnoremap <silent> z0t :call origami#TidyFolds(0)<CR>
