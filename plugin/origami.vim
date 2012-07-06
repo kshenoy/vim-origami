@@ -107,10 +107,10 @@ nmap <silent> z0F ,cA{{{<ESC>z0t
 if has('autocmd')
     augroup gami_autocmds
         autocmd!
-        autocmd BufReadPre * if !exists('b:OrigamiIncAllLines')  | let b:OrigamiIncAllLines  = g:OrigamiIncAllLines  | endif
-        autocmd BufReadPre * if !exists('b:OrigamiPadding')      | let b:OrigamiPadding      = g:OrigamiPadding      | endif
-        autocmd BufReadPre * if !exists('b:OrigamiSeparateLvls') | let b:OrigamiSeparateLvls = g:OrigamiSeparateLvls | endif
-        autocmd BufReadPre * if !exists('b:OrigamiFoldAtCol')    | let b:OrigamiFoldAtCol    = g:OrigamiFoldAtCol    | endif
+        autocmd BufEnter * if !exists('b:OrigamiIncAllLines')  | let b:OrigamiIncAllLines  = g:OrigamiIncAllLines  | endif
+        autocmd BufEnter * if !exists('b:OrigamiPadding')      | let b:OrigamiPadding      = g:OrigamiPadding      | endif
+        autocmd BufEnter * if !exists('b:OrigamiSeparateLvls') | let b:OrigamiSeparateLvls = g:OrigamiSeparateLvls | endif
+        autocmd BufEnter * if !exists('b:OrigamiFoldAtCol')    | let b:OrigamiFoldAtCol    = g:OrigamiFoldAtCol    | endif
     augroup END
 endif
 
