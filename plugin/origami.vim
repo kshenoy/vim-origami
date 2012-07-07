@@ -104,16 +104,6 @@ nmap <silent> z0f   A {{{<ESC>z0t
 nmap <silent> z0F ,cA{{{<ESC>z0t
 
 
-if has('autocmd')
-    augroup gami_autocmds
-        autocmd!
-        autocmd BufEnter * if !exists('b:OrigamiIncAllLines')  | let b:OrigamiIncAllLines  = g:OrigamiIncAllLines  | endif
-        autocmd BufEnter * if !exists('b:OrigamiPadding')      | let b:OrigamiPadding      = g:OrigamiPadding      | endif
-        autocmd BufEnter * if !exists('b:OrigamiSeparateLvls') | let b:OrigamiSeparateLvls = g:OrigamiSeparateLvls | endif
-        autocmd BufEnter * if !exists('b:OrigamiFoldAtCol')    | let b:OrigamiFoldAtCol    = g:OrigamiFoldAtCol    | endif
-    augroup END
-endif
-
 
 "===============================================================================
 let &cpo = s:save_cpo
