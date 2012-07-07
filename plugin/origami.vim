@@ -1,16 +1,16 @@
-" README:                   {{{1
+" README:           {{{1
 " vim-origami, version 1
 " 
-" Description:              {{{2
+" Description:      {{{2
 " Plugin to satisfy all your folding needs
 "  * Justify all the open-fold markers
 "  * Create new open-fold marker and justify it automatically
 " 
 " 
-" Requirements:             {{{2
+" Requirements:     {{{2
 " 
 " 
-" Installation:             {{{2
+" Installation:     {{{2
 " I highly recommend using Pathogen or Vundler to do the dirty work for you.
 " If for some reason, you do not want to use any of these excellent plugins, 
 " then unzip it to your ~/.vim directory. You know how it goes...  
@@ -27,7 +27,7 @@
 " ````
 " 
 " 
-" Customisation:            {{{2
+" Customisation:    {{{2
 " The defaults not to your liking bub? Have no fear; use the following variables to set things just the way you want it  
 " 
 " * `g:OrigamiDefaultMappings` ( Default : 1 )  
@@ -38,6 +38,12 @@
 "   `b:OrigamiPadding` can be specified separately for buffer-specific settings.  
 "   This behaves differently depending on whether `expandtab` is set or not. If yes, 
 "   this specifies the number of spaces to insert and if not, it specifies the number of tabs to be inserted.
+" 
+" * `g:OrigamiStaggeredSpacing` ( Default : 0 )  
+"   Specify if consecutive levels should be staggered.  
+"   `b:OrigamiStaggeredSpacing` can be specified separately for buffer-specific settings.  
+"   This behaves differently depending on whether `expandtab` is set or not. If yes, 
+"   this specifies the number of spaces to stagger and if not, it specifies the number of tabs.  
 " 
 " * `g:OrigamiFoldAtCol` ( Default : 0 )  
 "   Force the markers to align at the specified column. If set to 0, will auto-detect alignment position.  
@@ -52,14 +58,16 @@
 "   Align different fold-levels independently
 "   `b:OrigamiSeparateLvls` can be specified separately for buffer-specific settings.  
 "   
-" **Note:** Priority of settings is FoldAtCol > IncAllLines > SeparateLvls
+" **Note:** Priority of settings is SeparateLvls > StaggeredSpacing , FoldAtCol > IncAllLines
 " 
 " 
-" ToDo:                     {{{2
+" ToDo:             {{{2
 "  * Think of things to add here : /
+"  * Improve method used to map keys by trying to capture all input from user.
+"    Use something similar to http://vim.wikia.com/wiki/Capture_all_keys
 "
 "
-" Maintainer:               {{{2
+" Maintainer:       {{{2
 "   Kartik Shenoy  
 " 
 " Changelist:
@@ -87,21 +95,26 @@ let g:loaded_Origami = "1"  " Version Number
 let s:save_cpo      = &cpo
 set cpo&vim
 
-if !exists('g:OrigamiDefaultMappings') | let g:OrigamiDefaultMappings = 1 | endif
-if !exists('g:OrigamiIncAllLines')     | let g:OrigamiIncAllLines     = 0 | endif
-if !exists('g:OrigamiPadding')         | let g:OrigamiPadding         = 0 | endif
-if !exists('g:OrigamiSeparateLvls')    | let g:OrigamiSeparateLvls    = 0 | endif
-if !exists('g:OrigamiFoldAtCol')       | let g:OrigamiFoldAtCol       = 0 | endif
+if !exists('g:OrigamiDefaultMappings')  | let g:OrigamiDefaultMappings  = 1 | endif
+if !exists('g:OrigamiIncAllLines')      | let g:OrigamiIncAllLines      = 0 | endif
+if !exists('g:OrigamiPadding')          | let g:OrigamiPadding          = 0 | endif
+if !exists('g:OrigamiSeparateLvls')     | let g:OrigamiSeparateLvls     = 0 | endif
+if !exists('g:OrigamiFoldAtCol')        | let g:OrigamiFoldAtCol        = 0 | endif
+if !exists('g:OrigamiStaggeredSpacing') | let g:OrigamiStaggeredSpacing = 0 | endif
 
 nnoremap <silent> ztt :call origami#TidyFolds("%")<CR>
 for i in range(1, 9)
     silent exec 'nnoremap <silent> z' . i . 't :call origami#TidyFolds(' . i . ')<CR>'
-    silent exec 'nmap <silent> z' . i . 'f   A {{{' . i . '<ESC>z' . i . 't'
+    silent exec 'nmap <silent> z' . i . 'f  A {{{' . i . '<ESC>z' . i . 't'
     silent exec 'nmap <silent> z' . i . 'F ,cA{{{' . i . '<ESC>z' . i . 't'
+    silent exec 'nmap <silent> z' . i . 'd  A }}}' . i . '<ESC>z' . i . 't'
+    silent exec 'nmap <silent> z' . i . 'D ,cA}}}' . i . '<ESC>z' . i . 't'
 endfor
 nnoremap <silent> z0t :call origami#TidyFolds(0)<CR>
-nmap <silent> z0f   A {{{<ESC>z0t
+nmap <silent> z0f  A {{{<ESC>z0t
 nmap <silent> z0F ,cA{{{<ESC>z0t
+nmap <silent> z0d  A }}}<ESC>z0t
+nmap <silent> z0D ,cA}}}<ESC>z0t
 
 
 

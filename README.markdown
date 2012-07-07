@@ -22,6 +22,9 @@ So, once that's done, out of the box, the followings mappings are defined by def
   zxf : Create a new justified open-fold marker of fold-level 'x'  
         When 'x' is 0, create new unnumbered open-fold marker  
   zxF : Same as above, but also comments the marker. Requires NERDCommenter  
+  zxd : Insert a close-fold marker of fold-level 'x'
+        When 'x' is 0, create new unnumbered open-fold marker  
+  zxD : Same as above, but also comments the marker. Requires NERDCommenter  
 ````
 
 
@@ -37,6 +40,12 @@ The defaults not to your liking bub? Have no fear; use the following variables t
   This behaves differently depending on whether `expandtab` is set or not. If yes, 
   this specifies the number of spaces to insert and if not, it specifies the number of tabs to be inserted.
 
+* `g:OrigamiStaggeredSpacing` ( Default : 0 )  
+  Specify if consecutive levels should be staggered.  
+  `b:OrigamiStaggeredSpacing` can be specified separately for buffer-specific settings.  
+  This behaves differently depending on whether `expandtab` is set or not. If yes, 
+  this specifies the number of spaces to stagger and if not, it specifies the number of tabs.  
+
 * `g:OrigamiFoldAtCol` ( Default : 0 )  
   Force the markers to align at the specified column. If set to 0, will auto-detect alignment position.  
   `b:OrigamiFoldAtCol` can be specified separately for buffer-specific settings.  
@@ -50,7 +59,7 @@ The defaults not to your liking bub? Have no fear; use the following variables t
   Align different fold-levels independently
   `b:OrigamiSeparateLvls` can be specified separately for buffer-specific settings.  
   
-**Note:** Priority of settings is FoldAtCol > IncAllLines > SeparateLvls
+**Note:** Priority of settings is SeparateLvls > StaggeredSpacing , FoldAtCol > IncAllLines
 
 
 ##ToDo
