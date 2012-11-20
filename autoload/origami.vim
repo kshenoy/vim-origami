@@ -10,16 +10,21 @@ function! s:ReconFolds()
     let l:fold_info = {}
     for i in range(1, line('$'))
         let l:line = getline(i)
+
         if l:line =~ '{{{\d\?\s*$'
             let l:fold_lvl = matchlist(l:line, '{{{\(\d\+\)\?')[1]
             if empty(l:fold_lvl) | let l:fold_lvl = 0 | endif
+
             let l:line = substitute(l:line, '\s*{{{\(\d\+\)\?\s*$', "", "")
+
             if len(l:line) > get(l:fold_info, l:fold_lvl, 0)
                 let l:fold_info[l:fold_lvl] = len(l:line)
             endif
+
             if len(l:line) > get(l:fold_info, "%", 0)
                 let l:fold_info["%"] = len(l:line)
             endif
+
         elseif l:OrigamiIncAllLines
             let l:line = substitute(l:line, '\s*$', "", "")
             if len(l:line) > get(l:fold_info, "%", 0)
@@ -59,20 +64,26 @@ function! s:AssembleLine(len, len_max)
 
     if l:OrigamiFoldAtCol > 0
         if l:OrigamiFoldAtCol > a:len
-            let l:fold_pos = l:OrigamiFoldAtCol
+            let l:fold_pos = l:OrigamiFoldAtCol - 1
             let l:force_space = 1
         else
             echohl ERROR
             echom "Unable to place fold marker at column " . l:OrigamiFoldAtCol . " as length of line exceeds it"
             echohl NONE
             let l:force_space = 1
-        endif
-    endif
 
-    if l:OrigamiStaggeredSpacing > 0
-        let l:fold_pos = a:len_max + l:OrigamiPadding
+            if l:OrigamiStaggeredSpacing > 0
+                let l:fold_pos = a:len_max + l:OrigamiPadding
+            else
+                let l:fold_pos = (a:len_max / &softtabstop + 1) * &softtabstop + l:OrigamiPadding
+            endif
+        endif
     else
-        let l:fold_pos = (a:len_max / &softtabstop + 1) * &softtabstop + l:OrigamiPadding
+        if l:OrigamiStaggeredSpacing > 0
+            let l:fold_pos = a:len_max + l:OrigamiPadding
+        else
+            let l:fold_pos = (a:len_max / &softtabstop + 1) * &softtabstop + l:OrigamiPadding
+        endif
     endif
 
     if &expandtab || l:force_space
