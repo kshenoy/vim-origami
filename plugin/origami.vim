@@ -1,16 +1,16 @@
-" README:           {{{1
+" README:             {{{1
 " vim-origami, version 1
 " 
-" Description:      {{{2
+" Description:        {{{2
 " Plugin to satisfy all your folding needs
 "  * Justify all the open-fold markers
 "  * Create new open-fold marker and justify it automatically
 " 
 " 
-" Requirements:     {{{2
+" Requirements:       {{{2
 " 
 " 
-" Installation:     {{{2
+" Installation:       {{{2
 " I highly recommend using Pathogen or Vundler to do the dirty work for you.
 " If for some reason, you do not want to use any of these excellent plugins, 
 " then unzip it to your ~/.vim directory. You know how it goes...  
@@ -27,7 +27,7 @@
 " ````
 " 
 " 
-" Customisation:    {{{2
+" Customisation:      {{{2
 " The defaults not to your liking bub? Have no fear; use the following variables to set things just the way you want it  
 " 
 " * `g:OrigamiDefaultMappings` ( Default : 1 )  
@@ -61,13 +61,13 @@
 " **Note:** Priority of settings is SeparateLvls > StaggeredSpacing , FoldAtCol > IncAllLines
 " 
 " 
-" ToDo:             {{{2
+" ToDo:               {{{2
 "  * Think of things to add here : /
 "  * Improve method used to map keys by trying to capture all input from user.
 "    Use something similar to http://vim.wikia.com/wiki/Capture_all_keys
 "
 "
-" Maintainer:       {{{2
+" Maintainer:         {{{2
 "   Kartik Shenoy  
 " 
 " Changelist:
@@ -102,19 +102,23 @@ if !exists('g:OrigamiSeparateLvls')     | let g:OrigamiSeparateLvls     = 0 | en
 if !exists('g:OrigamiFoldAtCol')        | let g:OrigamiFoldAtCol        = 0 | endif
 if !exists('g:OrigamiStaggeredSpacing') | let g:OrigamiStaggeredSpacing = 0 | endif
 
+let s:fmr = split( &foldmarker, ',' )
+let s:fmr_begin = substitute( s:fmr[0], '.', '<C-V>&', 'g' )
+let s:fmr_end   = substitute( s:fmr[1], '.', '<C-V>&', 'g' )
+
 nnoremap <silent> ztt :call origami#TidyFolds("%")<CR>
 for i in range(1, 9)
     silent exec 'nnoremap <silent> z' . i . 't :call origami#TidyFolds(' . i . ')<CR>'
-    silent exec 'nmap <silent> z' . i . 'f  A {{{' . i . '<ESC>z' . i . 't'
-    silent exec 'nmap <silent> z' . i . 'F ,cA{{{' . i . '<ESC>z' . i . 't'
-    silent exec 'nmap <silent> z' . i . 'd  A }}}' . i . '<ESC>z' . i . 't'
-    silent exec 'nmap <silent> z' . i . 'D ,cA}}}' . i . '<ESC>z' . i . 't'
+    silent exec 'nmap <silent> z' . i . 'f  A ' . s:fmr_begin . i . '<ESC>z' . i . 't'
+    silent exec 'nmap <silent> z' . i . 'F ,cA' . s:fmr_begin . i . '<ESC>z' . i . 't'
+    silent exec 'nmap <silent> z' . i . 'd  A ' . s:fmr_end   . i . '<ESC>z' . i . 't'
+    silent exec 'nmap <silent> z' . i . 'D ,cA' . s:fmr_end   . i . '<ESC>z' . i . 't'
 endfor
-nnoremap <silent> z0t :call origami#TidyFolds(0)<CR>
-nmap <silent> z0f  A {{{<ESC>z0t
-nmap <silent> z0F ,cA{{{<ESC>z0t
-nmap <silent> z0d  A }}}<ESC>z0t
-nmap <silent> z0D ,cA}}}<ESC>z0t
+silent exec 'nnoremap <silent> z0t :call origami#TidyFolds(0)<CR>'
+silent exec 'nmap <silent> z0f  A ' . s:fmr_begin . '<ESC>z0t'
+silent exec 'nmap <silent> z0F ,cA' . s:fmr_begin . '<ESC>z0t'
+silent exec 'nmap <silent> z0d  A ' . s:fmr_end   . '<ESC>z0t'
+silent exec 'nmap <silent> z0D ,cA' . s:fmr_end   . '<ESC>z0t'
 
 
 

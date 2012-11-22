@@ -7,15 +7,16 @@ function! s:ReconFolds()
     let l:OrigamiSeparateLvls     = ( exists('b:OrigamiSeparateLvls')     ? b:OrigamiSeparateLvls     : g:OrigamiSeparateLvls     )
     let l:OrigamiStaggeredSpacing = ( exists('b:OrigamiStaggeredSpacing') ? b:OrigamiStaggeredSpacing : g:OrigamiStaggeredSpacing )
 
+    let l:fmr = split( &foldmarker, ',' )
     let l:fold_info = {}
     for i in range(1, line('$'))
         let l:line = getline(i)
 
-        if l:line =~ '{{{\d\?\s*$'
-            let l:fold_lvl = matchlist(l:line, '{{{\(\d\+\)\?')[1]
+        if l:line =~ l:fmr[0].'\d\?\s*$'
+            let l:fold_lvl = matchlist(l:line, l:fmr[0].'\(\d\+\)\?')[1]
             if empty(l:fold_lvl) | let l:fold_lvl = 0 | endif
 
-            let l:line = substitute(l:line, '\s*{{{\(\d\+\)\?\s*$', "", "")
+            let l:line = substitute(l:line, '\s*'.l:fmr[0].'\(\d\+\)\?\s*$', "", "")
 
             if len(l:line) > get(l:fold_info, l:fold_lvl, 0)
                 let l:fold_info[l:fold_lvl] = len(l:line)
@@ -61,6 +62,7 @@ function! s:AssembleLine(len, len_max)
     let l:OrigamiFoldAtCol        = ( exists('b:OrigamiFoldAtCol')        ? b:OrigamiFoldAtCol        : g:OrigamiFoldAtCol        )
     let l:OrigamiPadding          = ( exists('b:OrigamiPadding')          ? b:OrigamiPadding          : g:OrigamiPadding          )
     let l:OrigamiStaggeredSpacing = ( exists('b:OrigamiStaggeredSpacing') ? b:OrigamiStaggeredSpacing : g:OrigamiStaggeredSpacing )
+    let l:fmr = split( &foldmarker, ',' )
 
     if l:OrigamiFoldAtCol > 0
         if l:OrigamiFoldAtCol > a:len
@@ -99,17 +101,18 @@ endfunction
 
 function! origami#TidyFolds(lvl)
     let l:fold_info  = s:ReconFolds()
+    let l:fmr = split( &foldmarker, ',' )
     if a:lvl =~ '\d\+' | call filter(l:fold_info, 'v:key == a:lvl || v:key == "%"') | endif
 
     for k in keys(l:fold_info)
         for i in range(1, line('$'))
             let l:line = getline(i)
-            if l:line =~ '{{{\(\d\+\)\?\s*$'
-                let l:fold_lvl = ( matchlist(l:line, '{{{\(\d\+\)\?')[1] == "" ? 0 : matchlist(l:line, '{{{\(\d\+\)\?')[1] )
+            if l:line =~ fmr[0].'\(\d\+\)\?\s*$'
+                let l:fold_lvl = ( matchlist(l:line, fmr[0].'\(\d\+\)\?')[1] == "" ? 0 : matchlist(l:line, fmr[0].'\(\d\+\)\?')[1] )
                 if k == "%" || k == l:fold_lvl
-                    let l:line  = substitute(l:line, '\s*{{{\(\d\+\)\?\s*$', "", "")
+                    let l:line  = substitute(l:line, '\s*'.fmr[0].'\(\d\+\)\?\s*$', "", "")
                     if l:fold_lvl == 0 | let l:fold_lvl = "" | endif
-                    let l:line .= s:AssembleLine(len(l:line), l:fold_info[k]) . "{{{" . l:fold_lvl
+                    let l:line .= s:AssembleLine(len(l:line), l:fold_info[k]) . fmr[0] . l:fold_lvl
                     call setline(i, l:line)
                 endif
             endif
