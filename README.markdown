@@ -4,7 +4,7 @@ Plugin to satisfy all your folding needs
  * Justify all the open-fold markers
  * Create new open-fold marker and justify it automatically
 
-
+Screenshots [here](http://imgur.com/a/n8It6#0)  
 ##Requirements
 
 
@@ -49,6 +49,7 @@ The defaults not to your liking bub? Have no fear; use the following variables t
 * `g:OrigamiFoldAtCol` ( Default : 0 )  
   Force the markers to align at the specified column. If set to 0, will auto-detect alignment position.  
   `b:OrigamiFoldAtCol` can be specified separately for buffer-specific settings.  
+  Currently, FoldAtCol will override whatever value of StaggeredSpacing you're using and align all levels of foldmarkers along the same column.  
 
 * `g:OrigamiIncAllLines` ( Default : 0 )  
   Specify if all lines should be considered while aligning markers or only those having the marker.  
@@ -63,4 +64,5 @@ The defaults not to your liking bub? Have no fear; use the following variables t
 
 
 ##ToDo
+ * Support FoldAtCol and StaggeredSpacing combined  
  * Think of things to add here : /
