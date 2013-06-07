@@ -1,127 +1,57 @@
-" README:             {{{1
-" vim-origami, version 1
-" 
-" Description:        {{{2
-" Plugin to satisfy all your folding needs
-"  * Justify all the open-fold markers
-"  * Create new open-fold marker and justify it automatically
-" 
-" 
-" Requirements:       {{{2
-" 
-" 
-" Installation:       {{{2
-" I highly recommend using Pathogen or Vundler to do the dirty work for you.
-" If for some reason, you do not want to use any of these excellent plugins, 
-" then unzip it to your ~/.vim directory. You know how it goes...  
-"   
-" So, once that's done, out of the box, the followings mappings are defined by default:  
-" 
-" ````
-"   ztt : Align all folds  
-"   zxt : When 'x' is a number from 1-9, align folds of that particular fold-level  
-"         When 'x' is 0, align all unnumbered folds  
-"   zxf : Create a new justified open-fold marker of fold-level 'x'  
-"         When 'x' is 0, create new unnumbered open-fold marker  
-"   zxF : Same as above, but also comments the marker. Requires NERDCommenter  
-" ````
-" 
-" 
-" Customisation:      {{{2
-" The defaults not to your liking bub? Have no fear; use the following variables to set things just the way you want it  
-" 
-" * `g:OrigamiDefaultMappings` ( Default : 1 )  
-"   Will use the default mappings specified below.  
-" 
-" * `g:OrigamiPadding` ( Default : 0 )  
-"   Specify extra padding to be added. By default alignment happens on the next tabstop.  
-"   `b:OrigamiPadding` can be specified separately for buffer-specific settings.  
-"   This behaves differently depending on whether `expandtab` is set or not. If yes, 
-"   this specifies the number of spaces to insert and if not, it specifies the number of tabs to be inserted.
-" 
-" * `g:OrigamiStaggeredSpacing` ( Default : 0 )  
-"   Specify if consecutive levels should be staggered.  
-"   `b:OrigamiStaggeredSpacing` can be specified separately for buffer-specific settings.  
-"   This behaves differently depending on whether `expandtab` is set or not. If yes, 
-"   this specifies the number of spaces to stagger and if not, it specifies the number of tabs.  
-" 
-" * `g:OrigamiFoldAtCol` ( Default : 0 )  
-"   Force the markers to align at the specified column. If set to 0, will auto-detect alignment position.  
-"   `b:OrigamiFoldAtCol` can be specified separately for buffer-specific settings.  
-" 
-" * `g:OrigamiIncAllLines` ( Default : 0 )  
-"   Specify if all lines should be considered while aligning markers or only those having the marker.  
-"   If set to 1, the markers will be present outside the length of the longest line irrespective of if it has a fold-open marker or not.
-"   `b:OrigamiIncAllLines` can be specified separately for buffer-specific settings.  
-" 
-" * `g:OrigamiSeparateLvls` ( Default : 0 )  
-"   Align different fold-levels independently
-"   `b:OrigamiSeparateLvls` can be specified separately for buffer-specific settings.  
-"   
-" **Note:** Priority of settings is SeparateLvls > StaggeredSpacing , FoldAtCol > IncAllLines
-" 
-" 
-" ToDo:               {{{2
-"  * Think of things to add here : /
-"  * Improve method used to map keys by trying to capture all input from user.
-"    Use something similar to http://vim.wikia.com/wiki/Capture_all_keys
-"
-"
-" Maintainer:         {{{2
-"   Kartik Shenoy  
-" 
-" Changelist:
-"   2012-07-05:
-"     - Added support for buffer-specific settings
-"
-"   2012-07-02:  
-"     - Made the marker insertion method dependent upon tab settings
-"     - Added options to align different fold-levels independently
-"     - Added support to insert marker at a fixed column
-"     - Added support to insert fold-open markers
-"
-"   2012-07-01:  
-"     - Initial version
-" 
-" }}}1
 " vim: fdm=marker:et:ts=4:sw=4:sts=4
 "===========================================================================
 
 " Exit when app has already been loaded (or "compatible" mode set)
-if exists("g:loaded_Origami") || &cp
-    finish
+if exists('g:loaded_Origami') || &cp
+  finish
 endif
-let g:loaded_Origami = "1"  " Version Number
-let s:save_cpo      = &cpo
-set cpo&vim
+let g:loaded_Origami = 1
 
 if !exists('g:OrigamiDefaultMappings')  | let g:OrigamiDefaultMappings  = 1 | endif
-if !exists('g:OrigamiIncAllLines')      | let g:OrigamiIncAllLines      = 0 | endif
-if !exists('g:OrigamiPadding')          | let g:OrigamiPadding          = 0 | endif
-if !exists('g:OrigamiSeparateLvls')     | let g:OrigamiSeparateLvls     = 0 | endif
+if !exists('g:OrigamiSeparateLevels')   | let g:OrigamiSeparateLevels   = 0 | endif
 if !exists('g:OrigamiFoldAtCol')        | let g:OrigamiFoldAtCol        = 0 | endif
+if !exists('g:OrigamiIncAllLines')      | let g:OrigamiIncAllLines      = 0 | endif
 if !exists('g:OrigamiStaggeredSpacing') | let g:OrigamiStaggeredSpacing = 0 | endif
+if !exists('g:OrigamiPadding')          | let g:OrigamiPadding          = 0 | endif
 
-let s:fmr = split( &foldmarker, ',' )
-let s:fmr_begin = substitute( s:fmr[0], '.', '<C-V>&', 'g' )
-let s:fmr_end   = substitute( s:fmr[1], '.', '<C-V>&', 'g' )
+" Set up Plugs
+nnoremap <silent> <Plug>OrigamiAlignFoldmarkers           :call origami#AlignFoldmarkers()<CR>
+nnoremap <silent> <Plug>OrigamiUncommentedFoldmarkerOpen  :call origami#InsertFoldmarker( 'open',  'nocomment' )<CR>
+nnoremap <silent> <Plug>OrigamiUncommentedFoldmarkerClose :call origami#InsertFoldmarker( 'close', 'nocomment' )<CR>
+nnoremap <silent> <Plug>OrigamiCommentedFoldmarkerOpen    :call origami#InsertFoldmarker( 'open',  'comment'   )<CR>
+nnoremap <silent> <Plug>OrigamiCommentedFoldmarkerClose   :call origami#InsertFoldmarker( 'close', 'comment'   )<CR>
+nnoremap <silent> <Plug>OrigamiDeleteFoldmarker           :call origami#DeleteFoldmarker()<CR>
 
-nnoremap <silent> ztt :call origami#TidyFolds("%")<CR>
-for i in range(1, 9)
-    silent exec 'nnoremap <silent> z' . i . 't :call origami#TidyFolds(' . i . ')<CR>'
-    silent exec 'nmap <silent> z' . i . 'f  A ' . s:fmr_begin . i . '<ESC>z' . i . 't'
-    silent exec 'nmap <silent> z' . i . 'F ,cA' . s:fmr_begin . i . '<ESC>z' . i . 't'
-    silent exec 'nmap <silent> z' . i . 'd  A ' . s:fmr_end   . i . '<ESC>z' . i . 't'
-    silent exec 'nmap <silent> z' . i . 'D ,cA' . s:fmr_end   . i . '<ESC>z' . i . 't'
-endfor
-silent exec 'nnoremap <silent> z0t :call origami#TidyFolds(0)<CR>'
-silent exec 'nmap <silent> z0f  A ' . s:fmr_begin . '<ESC>z0t'
-silent exec 'nmap <silent> z0F ,cA' . s:fmr_begin . '<ESC>z0t'
-silent exec 'nmap <silent> z0d  A ' . s:fmr_end   . '<ESC>z0t'
-silent exec 'nmap <silent> z0D ,cA' . s:fmr_end   . '<ESC>z0t'
+if !exists('g:OrigamiShortcut')                           | let g:OrigamiShortcut                          = {}  | endif
+if !has_key( g:OrigamiShortcut, 'Align'            )      | let g:OrigamiShortcut['Align']                 = "a" | endif
+if !has_key( g:OrigamiShortcut, 'CommentedOpen'    )      | let g:OrigamiShortcut['CommentedOpen']         = "O" | endif
+if !has_key( g:OrigamiShortcut, 'CommentedClose'   )      | let g:OrigamiShortcut['CommentedClose']        = "C" | endif
+if !has_key( g:OrigamiShortcut, 'UncommentedOpen'  )      | let g:OrigamiShortcut['UncommentedOpen']       = "o" | endif
+if !has_key( g:OrigamiShortcut, 'UncommentedClose' )      | let g:OrigamiShortcut['UncommentedClose']      = "c" | endif
+if !exists('g:OrigamiShortcutLevel')                      | let g:OrigamiShortcutLevel                     = {}  | endif
+if !has_key( g:OrigamiShortcutLevel, 'CommentedOpen'    ) | let g:OrigamiShortcutLevel['CommentedOpen']    = ""  | endif
+if !has_key( g:OrigamiShortcutLevel, 'CommentedClose'   ) | let g:OrigamiShortcutLevel['CommentedClose']   = ""  | endif
+if !has_key( g:OrigamiShortcutLevel, 'UncommentedOpen'  ) | let g:OrigamiShortcutLevel['UncommentedOpen']  = ""  | endif
+if !has_key( g:OrigamiShortcutLevel, 'UncommentedClose' ) | let g:OrigamiShortcutLevel['UncommentedClose'] = ""  | endif
 
-
-
-"===============================================================================
-let &cpo = s:save_cpo
-unlet s:save_cpo
+" Set up default maps
+if g:OrigamiDefaultMappings
+  if !hasmapto( '<Plug>OrigamiAlignFoldmarkers' )
+    nmap <silent> <unique> <leader>za <Plug>OrigamiAlignFoldmarkers
+  endif
+  if !hasmapto( '<Plug>OrigamiUncommentedFoldmarkerOpen' )
+    nmap <silent> <unique> <leader>zo <Plug>OrigamiUncommentedFoldmarkerOpen
+  endif
+  if !hasmapto( '<Plug>OrigamiUncommentedFoldmarkerClose' )
+    nmap <silent> <unique> <leader>zc <Plug>OrigamiUncommentedFoldmarkerClose
+  endif
+  if !hasmapto( '<Plug>OrigamiCommentedFoldmarkerOpen' )
+    nmap <silent> <unique> <leader>zO <Plug>OrigamiCommentedFoldmarkerOpen
+  endif
+  if !hasmapto( '<Plug>OrigamiCommentedFoldmarkerClose' )
+    nmap <silent> <unique> <leader>zC <Plug>OrigamiCommentedFoldmarkerClose
+  endif
+  if !hasmapto( '<Plug>OrigamiDeleteFoldmarker' )
+    nmap <silent> <unique> <leader>ze <Plug>OrigamiDeleteFoldmarker
+  endif
+endif
