@@ -1,3 +1,6 @@
+This has undergone significant changes, hopefully for the better.  
+If you prefer to use the earlier version, you can download it from [here](https://github.com/kshenoy/vim-origami/archive/stable_03997ef.zip)
+
 #vim-origami
 
 Plugin to satisfy all your folding needs  
