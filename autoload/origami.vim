@@ -116,13 +116,13 @@ function! origami#AlignFoldmarkers(...) "                      {{{1
     let l:lvl  = nr2char( l:char )
   endif
 
-  if ( l:lvl !~? '\d' && !( has_key( g:OrigamiShortcut, 'Align' ) && l:lvl ==# g:OrigamiShortcut['Align'] ))
-    "execute "normal za" . l:char
+  if ( l:lvl !~? '\d' && !( has_key( g:OrigamiMap, 'Align' ) && l:lvl ==# g:OrigamiMap['Align'] ))
+    "execute "normal " . g:OrigamiMap['Leader'] . g:OrigamiMap['Align'] . l:char
     return
   else
     " Construct a hash of { foldlevel => length of longest line }
     let l:fold_info = s:ReconFolds()
-    if has_key( g:OrigamiShortcut, 'Align' ) && l:lvl ==? g:OrigamiShortcut['Align']
+    if has_key( g:OrigamiMap, 'Align' ) && l:lvl ==? g:OrigamiMap['Align']
       let l:lvl = "%"
     else
       " Input is a number; we need to align a particular foldlevel so we filter out the rest
@@ -190,19 +190,19 @@ function! origami#InsertFoldmarker( mode, comment_mode, ... ) "{{{1
     let l:comment_str = ( a:comment_mode ==? "comment" ? [ "", "" ] : g:comment_str )
     let l:lvl = ( l:lvl ==# ')' ? "" : stridx( ")!@#$%^&*(", l:lvl ))
 
-  " Shortcuts to insert opening and closing {{{,}}} marker without a comment
-  elseif ( a:mode ==? "open"  && has_key( g:OrigamiShortcut, 'UncommentedOpen' )  && l:lvl ==# g:OrigamiShortcut['UncommentedOpen']
-      \ || a:mode ==? "close" && has_key( g:OrigamiShortcut, 'UncommentedClose' ) && l:lvl ==# g:OrigamiShortcut['UncommentedClose'] )
+  " Maps to insert opening and closing {{{,}}} marker without a comment
+  elseif ( a:mode ==? "open"  && has_key( g:OrigamiMap, 'UncommentedOpen' )  && l:lvl ==# g:OrigamiMap['UncommentedOpen']
+      \ || a:mode ==? "close" && has_key( g:OrigamiMap, 'UncommentedClose' ) && l:lvl ==# g:OrigamiMap['UncommentedClose'] )
       \ && a:comment_mode ==? "nocomment"
     let l:comment_str = [ "", "", "" ]
-    let l:lvl = ( a:mode ==? "open" ? g:OrigamiShortcutLevel['UncommentedOpen'] : g:OrigamiShortcutLevel['UncommentedClose'] )
+    let l:lvl = ( a:mode ==? "open" ? g:OrigamiMapLevel['UncommentedOpen'] : g:OrigamiMapLevel['UncommentedClose'] )
 
-  " Shortcuts to insert opening and closing {{{,}}} marker with a comment
-  elseif ( a:mode ==? "open"  && has_key( g:OrigamiShortcut, 'CommentedOpen' )  && l:lvl ==# g:OrigamiShortcut['CommentedOpen']
-      \ || a:mode ==? "close" && has_key( g:OrigamiShortcut, 'CommentedClose' ) && l:lvl ==# g:OrigamiShortcut['CommentedClose'] )
+  " Maps to insert opening and closing {{{,}}} marker with a comment
+  elseif ( a:mode ==? "open"  && has_key( g:OrigamiMap, 'CommentedOpen' )  && l:lvl ==# g:OrigamiMap['CommentedOpen']
+      \ || a:mode ==? "close" && has_key( g:OrigamiMap, 'CommentedClose' ) && l:lvl ==# g:OrigamiMap['CommentedClose'] )
       \ && a:comment_mode ==? "comment"
     let l:comment_str = g:comment_str
-    let l:lvl = ( a:mode ==? "open" ? g:OrigamiShortcutLevel['CommentedOpen'] : g:OrigamiShortcutLevel['CommentedClose'] )
+    let l:lvl = ( a:mode ==? "open" ? g:OrigamiMapLevel['CommentedOpen'] : g:OrigamiMapLevel['CommentedClose'] )
 
   " Unusable sequence
   else

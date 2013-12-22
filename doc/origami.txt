@@ -34,7 +34,7 @@ Out of the box, the followings mappings are defined by default
               the end of line
   `<leader>zCx` Insert an end  foldmarker of level 'x' enclosed in comments at
               the end of line
-  `<leader>ze`  Remove a foldmarker from the line
+  `<leader>zd`  Remove a foldmarker from the line
 
   In each of the above, 'x' is a number from 0-9. 0 refers to unnumbered folds
 
@@ -60,47 +60,32 @@ Out of the box, the followings mappings are defined by default
 
 Set up Origami the way you want using the following options
 
-                                                        *OrigamiDefaultMappings*
-'g:OrigamiDefaultMappings'
-  Type: boolean, Default : 1
-
-  If set to 1, defines the mappings as shown here |origami-mappings|
-  To set up your own mappings use the following plugs
-
-  <Plug>OrigamiAlignFoldmarkers           : Align foldmarkers
-                          Default Mapping : <leader>za
-  <Plug>OrigamiUncommentedFoldmarkerOpen  : Insert start foldmarker
-                          Default Mapping : <leader>zo
-  <Plug>OrigamiUncommentedFoldmarkerClose : Insert end foldmarker
-                          Default Mapping : <leader>zc
-  <Plug>OrigamiCommentedFoldmarkerOpen    : Insert commented start foldmarker
-                          Default Mapping : <leader>zO
-  <Plug>OrigamiCommentedFoldmarkerClose   : Insert commented end foldmarker
-                          Default Mapping : <leader>zC
-  <Plug>OrigamiDeleteFoldmarker           : Remove a foldmarker from the line
-                          Default Mapping : <leader>ze
-
-                                                               *OrigamiShortcut*
-'g:OrigamiShortcut'
+                                                                    *OrigamiMap*
+'g:OrigamiMap'
   Type: Dictionary, Default:
-  let g:OrigamiShortcut = {
-      \ 'Align'            : "a",
-      \ 'UncommentedOpen'  : "o",
-      \ 'UncommentedClose' : "c",
-      \ 'CommentedOpen'    : "O",
-      \ 'CommentedClose'   : "C", }
+  To set up your own mappings copy the following dictionary and edit it
+      " let g:OrigamiMap = {
+      "   \ 'Leader'           : "<Leader>z",
+      "   \ 'Align'            : "a",
+      "   \ 'CommentedOpen'    : "O",
+      "   \ 'CommentedClose'   : "C",
+      "   \ 'UncommentedOpen'  : "o",
+      "   \ 'UncommentedClose' : "c",
+      "   \ 'Delete'           : "d",
+      "   \ }
+  To disable a map entirely, specify it as an empty string.
+  If a key is not specified, the default value will be picked up.
+  These same characters will be used to invoke the shortcuts.
 
-  The characters that invoke the shortcuts.
-
-                                                          *OrigamiShortcutLevel*
-'g:OrigamiShortcut'
+                                                               *OrigamiMapLevel*
+'g:OrigamiMapLevel'
   Type: Dictionary, Default:
-  "let g:OrigamiShortcutLevel = {
-  "    \ 'CommentedOpen'    : "",
-  "    \ 'CommentedClose'   : "",
-  "    \ 'UncommentedOpen'  : "",
-  "    \ 'UncommentedClose' : "", }
-
+      " let g:OrigamiMapLevel = {
+      "   \ 'CommentedOpen'    : "",
+      "   \ 'CommentedClose'   : "",
+      "   \ 'UncommentedOpen'  : "",
+      "   \ 'UncommentedClose' : "",
+      "   \ }
   The level of the foldmarker that is inserted when a shortcut is invoked
 
                                                                 *OrigamiPadding*

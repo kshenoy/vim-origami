@@ -35,7 +35,7 @@ So, once that's done, out of the box, the followings mappings are defined by def
   <leader>zcx  Insert an end  foldmarker of level 'x' at the end of line  
   <leader>zOx  Insert a start foldmarker of level 'x' enclosed in comments at the end of line  
   <leader>zCx  Insert an end  foldmarker of level 'x' enclosed in comments at the end of line  
-  <leader>ze   Delete a foldmarker present on the line  
+  <leader>zd   Delete a foldmarker present on the line  
 
   <leader>zaa  Align all the folds
   <leader>zoo  Insert an unnumbered open foldmarker
