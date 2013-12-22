@@ -20,7 +20,7 @@ if !has_key( g:OrigamiMap, 'CommentedOpen'    ) | let g:OrigamiMap['CommentedOpe
 if !has_key( g:OrigamiMap, 'CommentedClose'   ) | let g:OrigamiMap['CommentedClose']   = "C"         | endif
 if !has_key( g:OrigamiMap, 'UncommentedOpen'  ) | let g:OrigamiMap['UncommentedOpen']  = "o"         | endif
 if !has_key( g:OrigamiMap, 'UncommentedClose' ) | let g:OrigamiMap['UncommentedClose'] = "c"         | endif
-if !has_key( g:OrigamiMap, 'Delete'           ) | let g:OrigamiMap['Delete'            = "d"         | endif
+if !has_key( g:OrigamiMap, 'Delete'           ) | let g:OrigamiMap['Delete']           = "d"         | endif
 
 if !exists ('g:OrigamiMapLevel'                    ) | let g:OrigamiMapLevel                     = {} | endif
 if !has_key( g:OrigamiMapLevel, 'CommentedOpen'    ) | let g:OrigamiMapLevel['CommentedOpen']    = "" | endif
@@ -37,19 +37,19 @@ if g:OrigamiMap['UncommentedOpen'] != ""
   execute 'nnoremap <silent> <unique> ' . g:OrigamiMap['Leader'] . g:OrigamiMap['UncommentedOpen']
         \ . ' :call origami#InsertFoldmarker( "open",  "nocomment" )<CR>'
 endif
-if g:OrigamiMap[''] != ""
+if g:OrigamiMap['UncommentedClose'] != ""
   execute 'nnoremap <silent> <unique> ' . g:OrigamiMap['Leader'] . g:OrigamiMap['UncommentedClose']
         \ . ' :call origami#InsertFoldmarker( "close", "nocomment" )<CR>'
 endif
-if g:OrigamiMap[''] != ""
+if g:OrigamiMap['CommentedOpen'] != ""
   execute 'nnoremap <silent> <unique> ' . g:OrigamiMap['Leader'] . g:OrigamiMap['CommentedOpen']
         \ . ' :call origami#InsertFoldmarker( "open",  "comment"   )<CR>'
 endif
-if g:OrigamiMap[''] != ""
+if g:OrigamiMap['CommentedClose'] != ""
   execute 'nnoremap <silent> <unique> ' . g:OrigamiMap['Leader'] . g:OrigamiMap['CommentedClose']
         \ . ' :call origami#InsertFoldmarker( "close", "comment"   )<CR>'
 endif
-if g:OrigamiMap[''] != ""
-  execute 'nnoremap <silent> <unique> ' . g:OrigamiMap['Leader'] . g:OrigamiMap['DeleteFoldmarker']
+if g:OrigamiMap['Delete'] != ""
+  execute 'nnoremap <silent> <unique> ' . g:OrigamiMap['Leader'] . g:OrigamiMap['Delete']
         \ . ' :call origami#DeleteFoldmarker()<CR>'
 endif
