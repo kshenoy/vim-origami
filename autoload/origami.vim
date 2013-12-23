@@ -2,7 +2,7 @@
 "===========================================================================
 
 
-function! s:ReconFolds() "                                     {{{1
+function! s:ReconFolds()                                         " {{{1
   " Description:
   "   Parses the file and constructs a hash. The keys of the hash are all the foldlevels present in the file
   "   The values represent the length of the longest line of that particular foldlevel.
@@ -16,11 +16,18 @@ function! s:ReconFolds() "                                     {{{1
   for i in range(1, line('$'))
     let l:line = getline(i)
 
-    if l:line =~ s:fmr[0].'\d\?\s*'.escape(g:comment_str[1], '*').'\s*$'
-      let l:fold_lvl = matchlist(l:line, s:fmr[0].'\(\d\+\)\?')[1]
-      if empty(l:fold_lvl) | let l:fold_lvl = 0 | endif
+    let l:fold_match = matchlist( l:line, '\s*\(' . escape(s:comment_str[0], '*') . '\)\?\s*' . s:fmr[0] . '\(\d*\)\s*\(' . escape( s:comment_str[1], '*' ) . '\)\?\s*$' )
+    " 0 - Matching string
+    " 1 - Comment string start
+    " 2 - Fold level
+    " 3 - Comment string end
+    if !empty( l:fold_match )
 
-      let l:line = substitute(l:line, '\s*'.s:fmr[0].'\(\d\+\)\?\s*'.escape(g:comment_str[1], '*').'\s*$', "", "")
+      let l:fold_lvl = ( l:fold_match[2] == "" ? 0 : l:fold_match[2] )
+
+      " ... remove the original marker and pad the line and add a new marker to align it with the rest
+      let l:line = substitute( l:line, '\s*\(' . escape(s:comment_str[0], '*') . '\)\?\s*' . s:fmr[0] . '\(\d*\)\s*\(' . escape( s:comment_str[1], '*' ) . '\)\?\s*$', "", "" )
+
       let l:fold_info[l:fold_lvl] = max([ len(l:line), get( l:fold_info, l:fold_lvl, s:OrigamiFoldAtCol )])
       let l:fold_info["%"] = max([ len(l:line), get( l:fold_info, "%", s:OrigamiFoldAtCol )])
 
@@ -60,7 +67,7 @@ endfunction
 
 
 
-function! s:PaddedFmrString( len, len_max ) "                  {{{1
+function! s:PaddedFmrString( len, len_max )                      " {{{1
   " Description:
   "   Creates a new foldmarker string. The function takes two arguments - length of the line at which foldmarker is to
   "   be placed and the max. length of the lines. It uses these to pad the foldmarker string with spaces/tabs depending
@@ -82,7 +89,7 @@ endfunction
 
 
 
-function! origami#AlignFoldmarkers(...) "                      {{{1
+function! origami#AlignFoldmarkers(...)                          " {{{1
   " Description:
   "   Aligns the fold markers. If input is given, aligns foldmarkers of that particular level else accepts input from
   "   user and aligns the specified foldlevel
@@ -105,8 +112,8 @@ function! origami#AlignFoldmarkers(...) "                      {{{1
   let s:OrigamiStaggeredSpacing = ( &expandtab ? s:OrigamiStaggeredSpacing : s:OrigamiStaggeredSpacing * &tabstop )
   let s:OrigamiPadding          = ( &expandtab ? s:OrigamiPadding : s:OrigamiPadding * &tabstop )
   let s:fmr                     = split( &foldmarker, ',' )
-  let g:comment_str             = split( &commentstring, '%s' )
-  if len( g:comment_str ) == 1 | call add( g:comment_str, "" ) | endif
+  let s:comment_str             = split( &commentstring, '%s' )
+  if len( s:comment_str ) == 1 | call add( s:comment_str, "" ) | endif
 
   " Get the fold level to align
   if a:0
@@ -116,13 +123,13 @@ function! origami#AlignFoldmarkers(...) "                      {{{1
     let l:lvl  = nr2char( l:char )
   endif
 
-  if ( l:lvl !~? '\d' && !( has_key( g:OrigamiMap, 'Align' ) && l:lvl ==# g:OrigamiMap['Align'] ))
+  if (( l:lvl !~ '\d' ) && ( l:lvl !=# g:OrigamiMap['Align'] ))
     "execute "normal " . g:OrigamiMap['Leader'] . g:OrigamiMap['Align'] . l:char
     return
   else
     " Construct a hash of { foldlevel => length of longest line }
     let l:fold_info = s:ReconFolds()
-    if has_key( g:OrigamiMap, 'Align' ) && l:lvl ==? g:OrigamiMap['Align']
+    if l:lvl ==# g:OrigamiMap['Align']
       let l:lvl = "%"
     else
       " Input is a number; we need to align a particular foldlevel so we filter out the rest
@@ -135,12 +142,16 @@ function! origami#AlignFoldmarkers(...) "                      {{{1
     let l:line = getline(i)
 
     " ... check if a foldmarker is present at the end and if it does ...
-    if l:line =~ s:fmr[0].'\(\d\+\)\?\s*'.escape( g:comment_str[1], '*' ).'\s*$'
+    let l:fold_match = matchlist( l:line, '\s*\(' . escape(s:comment_str[0], '*') . '\)\?\s*' . s:fmr[0] . '\(\d*\)\s*\(' . escape( s:comment_str[1], '*' ) . '\)\?\s*$' )
+    " 0 - Matching string
+    " 1 - Comment string start
+    " 2 - Fold level
+    " 3 - Comment string end
+    if !empty( l:fold_match )
 
       " ... get the foldlevel ...
-      let l:fold_str = matchlist( l:line, s:fmr[0].'\(\d\+\)\?' )[1]
       if s:OrigamiSeparateLevels || s:OrigamiStaggeredSpacing
-        let l:fold_lvl = ( l:fold_str == "" ? 0 : l:fold_str )
+        let l:fold_lvl = ( l:fold_match[2] == "" ? 0 : l:fold_match[2] )
         if l:lvl =~ '\d' && l:lvl !=# l:fold_lvl
           return
         endif
@@ -149,8 +160,12 @@ function! origami#AlignFoldmarkers(...) "                      {{{1
       endif
 
       " ... remove the original marker and pad the line and add a new marker to align it with the rest
-      let l:line  = substitute(l:line, '\s*'.s:fmr[0].'\(\d\+\)\?\s*'.escape( g:comment_str[1], '*' ).'\s*$', "", "")
-      let l:line .= s:PaddedFmrString( len(l:line), l:fold_info[l:fold_lvl] ).s:fmr[0].l:fold_str.g:comment_str[1]
+      let l:line = substitute( l:line, '\s*\(' . escape(s:comment_str[0], '*') . '\)\?\s*' . s:fmr[0] . '\(\d*\)\s*\(' . escape( s:comment_str[1], '*' ) . '\)\?\s*$', "", "" )
+
+      if l:fold_match[1] == "" | let l:fold_match[1] = repeat( " ", len( s:comment_str[0] )) | endif
+      if l:fold_match[3] != "" | let l:fold_match[3] = " " . l:fold_match[3] | endif
+
+      let l:line .= s:PaddedFmrString( len(l:line), l:fold_info[l:fold_lvl] ) . l:fold_match[1] . " " . s:fmr[0] . l:fold_match[2] . l:fold_match[3]
       call setline(i, l:line)
     endif
   endfor
@@ -158,7 +173,7 @@ endfunction
 
 
 
-function! origami#InsertFoldmarker( mode, comment_mode, ... ) "{{{1
+function! origami#InsertFoldmarker( mode, comment_mode, ... )    " {{{1
   " Description:
   "   Inserts opening and closing foldmarkers. When comment_mode = "comment", inserts commented foldmarkers else
   "   inserts just the foldmarkers itself
@@ -169,8 +184,8 @@ function! origami#InsertFoldmarker( mode, comment_mode, ... ) "{{{1
   "                           from the user. This can be used to insert markers for foldlevels greater than 9
 
   " Store variables in script specific variables to avoid reading them in every function
-  let g:comment_str = split( &commentstring, '%s' )
-  if len( g:comment_str ) == 1 | call add( g:comment_str, "" ) | endif
+  let s:comment_str = split( &commentstring, '%s' )
+  if len( s:comment_str ) == 1 | call add( s:comment_str, "" ) | endif
 
   " Get the fold level to insert
   if a:0
@@ -182,26 +197,27 @@ function! origami#InsertFoldmarker( mode, comment_mode, ... ) "{{{1
 
   " When input is a Num, do what comment_mode says
   if l:lvl =~# '\d'
-    let l:comment_str = ( a:comment_mode ==? "comment" ? g:comment_str : [ "", "" ] )
+    let l:comment_str = ( a:comment_mode ==? "comment" ? s:comment_str : [ "", "" ] )
     let l:lvl = ( l:lvl =~# '0' ? "" : l:lvl )
 
   " When input is Shift + Num, do the opposite of what comment_mode says
   elseif l:lvl =~# '[)!@#$%^&*(]'
-    let l:comment_str = ( a:comment_mode ==? "comment" ? [ "", "" ] : g:comment_str )
+    let l:comment_str = ( a:comment_mode ==? "comment" ? [ "", "" ] : s:comment_str )
     let l:lvl = ( l:lvl ==# ')' ? "" : stridx( ")!@#$%^&*(", l:lvl ))
 
   " Maps to insert opening and closing {{{,}}} marker without a comment
-  elseif ( a:mode ==? "open"  && has_key( g:OrigamiMap, 'UncommentedOpen' )  && l:lvl ==# g:OrigamiMap['UncommentedOpen']
-      \ || a:mode ==? "close" && has_key( g:OrigamiMap, 'UncommentedClose' ) && l:lvl ==# g:OrigamiMap['UncommentedClose'] )
-      \ && a:comment_mode ==? "nocomment"
+  elseif (  a:mode ==? "open"  && l:lvl ==# g:OrigamiMap['UncommentedOpen']
+       \ || a:mode ==? "close" && l:lvl ==# g:OrigamiMap['UncommentedClose']
+       \ )
+       \ && a:comment_mode ==? "nocomment"
     let l:comment_str = [ "", "", "" ]
     let l:lvl = ( a:mode ==? "open" ? g:OrigamiMapLevel['UncommentedOpen'] : g:OrigamiMapLevel['UncommentedClose'] )
 
   " Maps to insert opening and closing {{{,}}} marker with a comment
-  elseif ( a:mode ==? "open"  && has_key( g:OrigamiMap, 'CommentedOpen' )  && l:lvl ==# g:OrigamiMap['CommentedOpen']
-      \ || a:mode ==? "close" && has_key( g:OrigamiMap, 'CommentedClose' ) && l:lvl ==# g:OrigamiMap['CommentedClose'] )
+  elseif ( a:mode ==? "open"  && l:lvl ==# g:OrigamiMap['CommentedOpen']
+      \ || a:mode ==? "close" && l:lvl ==# g:OrigamiMap['CommentedClose'] )
       \ && a:comment_mode ==? "comment"
-    let l:comment_str = g:comment_str
+    let l:comment_str = s:comment_str
     let l:lvl = ( a:mode ==? "open" ? g:OrigamiMapLevel['CommentedOpen'] : g:OrigamiMapLevel['CommentedClose'] )
 
   " Unusable sequence
@@ -221,12 +237,13 @@ function! origami#InsertFoldmarker( mode, comment_mode, ... ) "{{{1
 endfunction
 
 
-function! origami#DeleteFoldmarker() "                         {{{1
+function! origami#DeleteFoldmarker()                             " {{{1
   " Description: Remove a foldmarker from the current line
 
   let s:fmr  = split( &foldmarker, ',' )
+  let s:comment_str = split( &commentstring, '%s' )
+  if len( s:comment_str ) == 1 | call add( s:comment_str, "" ) | endif
   let l:line = getline('.')
-  let l:line = substitute( l:line, s:fmr[0].'\d*', "", "" )
-  let l:line = substitute( l:line, s:fmr[1].'\d*', "", "" )
+  let l:line = substitute( l:line, '\s*\(' . escape(s:comment_str[0], '*') . '\)\?\s*' . s:fmr[0] . '\(\d*\)\s*\(' . escape( s:comment_str[1], '*' ) . '\)\?\s*$', "", "" )
   call setline( '.', l:line )
 endfunction
