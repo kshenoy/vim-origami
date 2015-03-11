@@ -27,31 +27,24 @@ origami.txt A plugin to insert/delete/justify all the fold markers
 
 Out of the box, the followings mappings are defined by default
 
-  `<leader>zax` Align all folds of level 'x'
-  `<leader>zox` Insert a start foldmarker of level 'x' at the end of line
-  `<leader>zcx` Insert an end  foldmarker of level 'x' at the end of line
-  `<leader>zOx` Insert a start foldmarker of level 'x' enclosed in comments at
-              the end of line
-  `<leader>zCx` Insert an end  foldmarker of level 'x' enclosed in comments at
-              the end of line
-  `<leader>zd`  Remove a foldmarker from the line
+  `<count>Za`  Align all folds of level 'count'
+         `ZA`  Align all folds
+  `<count>ZF`  Insert a start foldmarker of level 'count' at the end of line and comment it
+  `<count>Zf`  Insert a start foldmarker of level 'count' at the end of line but don't comment it
+  `<count>ZC`  Insert an end  foldmarker of level 'count' at the end of line and comment it
+  `<count>Zc`  Insert an end  foldmarker of level 'count' at the end of line but don't comment it
+         `ZD`  Delete the foldmarker from the line
 
-  In each of the above, 'x' is a number from 0-9. 0 refers to unnumbered folds
+  In each of the above, if the count is not specified, it acts on unnumbered folds
 
   Thus,
-    `<leader>za0` will align all the unnumbered folds
-    `<leader>za1` will align all the folds of level 1
-    `<leader>zo2` will insert a level 2 start foldmarker
-    `<leader>zO3` will insert a level 3 start foldmarker enclosed in comments
-    `<leader>zc4` will insert a level 4 end foldmarker
-    `<leader>zC5` will insert a level 5 end foldmarker enclosed in comments
-
-  Apart from these, Origami also has shortcuts in the spirit of dd, yy etc.
-    `<leader>zaa` will align all the folds
-    `<leader>zoo` will insert an unnumbered open foldmarker
-    `<leader>zcc` will insert an unnumbered close foldmarker
-    `<leader>zOO` will insert a commented unnumbered open foldmarker
-    `<leader>zCC` will insert a commented unnumbered close foldmarker
+     `Za`  will align all the unnumbered folds
+     `ZA`  will align all the folds of all levels
+    `1Za`  will align all the folds of level 1
+    `2Zf`  will insert a level 2 start foldmarker
+    `3ZF`  will insert a level 3 start foldmarker enclosed in comments
+    `4Zc`  will insert a level 4 end foldmarker
+    `5ZC`  will insert a level 5 end foldmarker enclosed in comments
 
 
 ==============================================================================
@@ -65,28 +58,18 @@ Set up Origami the way you want using the following options
   Type: Dictionary, Default:
   To set up your own mappings copy the following dictionary and edit it
       " let g:OrigamiMap = {
-      "   \ 'Leader'           : "<Leader>z",
+      "   \ 'Leader'           : "Z",
       "   \ 'Align'            : "a",
-      "   \ 'CommentedOpen'    : "O",
+      "   \ 'AlignAll'         : "A",
+      "   \ 'CommentedOpen'    : "F",
+      "   \ 'UncommentedOpen'  : "f",
       "   \ 'CommentedClose'   : "C",
-      "   \ 'UncommentedOpen'  : "o",
       "   \ 'UncommentedClose' : "c",
-      "   \ 'Delete'           : "d",
+      "   \ 'Delete'           : "D",
       "   \ }
   To disable a map entirely, specify it as an empty string.
   If a key is not specified, the default value will be picked up.
   These same characters will be used to invoke the shortcuts.
-
-                                                               *OrigamiMapLevel*
-'g:OrigamiMapLevel'
-  Type: Dictionary, Default:
-      " let g:OrigamiMapLevel = {
-      "   \ 'CommentedOpen'    : "",
-      "   \ 'CommentedClose'   : "",
-      "   \ 'UncommentedOpen'  : "",
-      "   \ 'UncommentedClose' : "",
-      "   \ }
-  The level of the foldmarker that is inserted when a shortcut is invoked
 
                                                                 *OrigamiPadding*
 'g:OrigamiPadding'

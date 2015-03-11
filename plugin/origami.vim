@@ -7,49 +7,41 @@ if exists('g:loaded_Origami') || &cp
 endif
 let g:loaded_Origami = 1
 
-if !exists('g:OrigamiSeparateLevels')   | let g:OrigamiSeparateLevels   = 0 | endif
-if !exists('g:OrigamiFoldAtCol')        | let g:OrigamiFoldAtCol        = 0 | endif
-if !exists('g:OrigamiIncAllLines')      | let g:OrigamiIncAllLines      = 0 | endif
-if !exists('g:OrigamiStaggeredSpacing') | let g:OrigamiStaggeredSpacing = 0 | endif
-if !exists('g:OrigamiPadding')          | let g:OrigamiPadding          = 0 | endif
-
-if !exists ('g:OrigamiMap'                    ) | let g:OrigamiMap                     = {}          | endif
-if !has_key( g:OrigamiMap, 'Leader'           ) | let g:OrigamiMap['Leader']           = "<Leader>z" | endif
-if !has_key( g:OrigamiMap, 'Align'            ) | let g:OrigamiMap['Align']            = "a"         | endif
-if !has_key( g:OrigamiMap, 'CommentedOpen'    ) | let g:OrigamiMap['CommentedOpen']    = "O"         | endif
-if !has_key( g:OrigamiMap, 'CommentedClose'   ) | let g:OrigamiMap['CommentedClose']   = "C"         | endif
-if !has_key( g:OrigamiMap, 'UncommentedOpen'  ) | let g:OrigamiMap['UncommentedOpen']  = "o"         | endif
-if !has_key( g:OrigamiMap, 'UncommentedClose' ) | let g:OrigamiMap['UncommentedClose'] = "c"         | endif
-if !has_key( g:OrigamiMap, 'Delete'           ) | let g:OrigamiMap['Delete']           = "d"         | endif
-
-if !exists ('g:OrigamiMapLevel'                    ) | let g:OrigamiMapLevel                     = {} | endif
-if !has_key( g:OrigamiMapLevel, 'CommentedOpen'    ) | let g:OrigamiMapLevel['CommentedOpen']    = "" | endif
-if !has_key( g:OrigamiMapLevel, 'CommentedClose'   ) | let g:OrigamiMapLevel['CommentedClose']   = "" | endif
-if !has_key( g:OrigamiMapLevel, 'UncommentedOpen'  ) | let g:OrigamiMapLevel['UncommentedOpen']  = "" | endif
-if !has_key( g:OrigamiMapLevel, 'UncommentedClose' ) | let g:OrigamiMapLevel['UncommentedClose'] = "" | endif
+function! s:Set(var, default)                                                                                     " {{{1
+  if !exists(a:var)
+    if type(a:default)
+      execute 'let' a:var '=' string(a:default)
+    else
+      execute 'let' a:var '=' a:default
+    endif
+  endif
+  return a:var
+endfunction
+call s:Set('g:OrigamiSeparateLevels',   0 )
+call s:Set('g:OrigamiFoldAtCol',        0 )
+call s:Set('g:OrigamiIncAllLines',      0 )
+call s:Set('g:OrigamiStaggeredSpacing', 0 )
+call s:Set('g:OrigamiPadding',          0 )
+call s:Set('g:OrigamiMap',              {})
 
 " Set up maps
-if g:OrigamiMap['Align'] != ""
-  execute 'nnoremap <silent> <unique> ' . g:OrigamiMap['Leader'] . g:OrigamiMap['Align']
-        \ . ' :call origami#AlignFoldmarkers()<CR>'
-endif
-if g:OrigamiMap['UncommentedOpen'] != ""
-  execute 'nnoremap <silent> <unique> ' . g:OrigamiMap['Leader'] . g:OrigamiMap['UncommentedOpen']
-        \ . ' :call origami#InsertFoldmarker( "open",  "nocomment" )<CR>'
-endif
-if g:OrigamiMap['UncommentedClose'] != ""
-  execute 'nnoremap <silent> <unique> ' . g:OrigamiMap['Leader'] . g:OrigamiMap['UncommentedClose']
-        \ . ' :call origami#InsertFoldmarker( "close", "nocomment" )<CR>'
-endif
-if g:OrigamiMap['CommentedOpen'] != ""
-  execute 'nnoremap <silent> <unique> ' . g:OrigamiMap['Leader'] . g:OrigamiMap['CommentedOpen']
-        \ . ' :call origami#InsertFoldmarker( "open",  "comment"   )<CR>'
-endif
-if g:OrigamiMap['CommentedClose'] != ""
-  execute 'nnoremap <silent> <unique> ' . g:OrigamiMap['Leader'] . g:OrigamiMap['CommentedClose']
-        \ . ' :call origami#InsertFoldmarker( "close", "comment"   )<CR>'
-endif
-if g:OrigamiMap['Delete'] != ""
-  execute 'nnoremap <silent> <unique> ' . g:OrigamiMap['Leader'] . g:OrigamiMap['Delete']
-        \ . ' :call origami#DeleteFoldmarker()<CR>'
-endif
+function! s:Map(mode, key, map_lhs_default, map_rhs)                                                              " {{{1
+  let l:map_lhs = get(g:OrigamiMap, a:key, a:map_lhs_default)
+  if (l:map_lhs ==? '')
+    return
+  endif
+  if (a:mode ==? 'create')
+    silent! execute 'nnoremap <silent> <unique> ' . l:map_lhs . ' ' . ':<C-U>call origami#' . a:map_rhs . '<CR>'
+  elseif (a:mode ==? 'remove')
+    silent! execute 'nunmap ' . l:map_lhs
+  endif
+endfunction
+
+let s:OrigamiMapLeader = get(g:OrigamiMap, 'Leader', 'Z')
+call s:Map('create', 'Align'           , s:OrigamiMapLeader . "a", 'AlignFoldmarkers(v:count)'                      )
+call s:Map('create', 'AlignAll'        , s:OrigamiMapLeader . "A", 'AlignFoldmarkers()'                             )
+call s:Map('create', 'CommentedOpen'   , s:OrigamiMapLeader . "F", 'InsertFoldmarker("open" , "comment"  , v:count)')
+call s:Map('create', 'UncommentedOpen' , s:OrigamiMapLeader . "f", 'InsertFoldmarker("open" , "nocomment", v:count)')
+call s:Map('create', 'CommentedClose'  , s:OrigamiMapLeader . "C", 'InsertFoldmarker("close", "comment"  , v:count)')
+call s:Map('create', 'UncommentedClose', s:OrigamiMapLeader . "c", 'InsertFoldmarker("close", "nocomment", v:count)')
+call s:Map('create', 'Delete'          , s:OrigamiMapLeader . "D", 'DeleteFoldmarker()'                             )

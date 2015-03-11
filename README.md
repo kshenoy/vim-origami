@@ -1,5 +1,7 @@
-This has undergone significant changes, hopefully for the better.  
-If you prefer to use the earlier version, you can download it from [here](https://github.com/kshenoy/vim-origami/archive/stable_03997ef.zip)
+For some time now, I've been wanting to clean up the code and finally got around to it.  
+However, I also ended up removing some features that I felt were not useful in a bid to keep things simple.  
+I also have changed the default maps in order to get rid of ugly leader maps and now the commands accept a count instead of accepting it as an input.  
+If you prefer to use the earlier version, you can download it from [here](https://github.com/kshenoy/vim-origami/archive/stable_055e333.zip)
 
 #vim-origami
 
@@ -30,17 +32,12 @@ If for some reason, you do not want to use any of them then unzip it to your ~/.
 ##Usage
 So, once that's done, out of the box, the followings mappings are defined by default:  
 ````
-  <leader>zax  Align all folds of level 'x'  
-  <leader>zox  Insert a start foldmarker of level 'x' at the end of line  
-  <leader>zcx  Insert an end  foldmarker of level 'x' at the end of line  
-  <leader>zOx  Insert a start foldmarker of level 'x' enclosed in comments at the end of line  
-  <leader>zCx  Insert an end  foldmarker of level 'x' enclosed in comments at the end of line  
-  <leader>zd   Delete a foldmarker present on the line  
-
-  <leader>zaa  Align all the folds
-  <leader>zoo  Insert an unnumbered open foldmarker
-  <leader>zcc  Insert an unnumbered close foldmarker
-  <leader>zOO  Insert a commented unnumbered open foldmarker
-  <leader>zCC  Insert a commented unnumbered close foldmarker
+  `<count>Za`  Align all folds of level 'count'
+         `ZA`  Align all folds
+  `<count>ZF`  Insert a start foldmarker of level 'count' at the end of line and comment it
+  `<count>Zf`  Insert a start foldmarker of level 'count' at the end of line but don't comment it
+  `<count>ZC`  Insert an end  foldmarker of level 'count' at the end of line and comment it
+  `<count>Zc`  Insert an end  foldmarker of level 'count' at the end of line but don't comment it
+         `ZD`  Delete the foldmarker from the line
 ````
-where 'x' is a number from 0-9. 0 refers to unnumbered folds
+If no count is given, then the actions are performed on unnumbered folds
