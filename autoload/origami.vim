@@ -31,8 +31,12 @@ function! s:Init()                                                              
 
   if !s:OrigamiSeparateLevels
     let s:OrigamiFoldAtCol = s:Get('OrigamiFoldAtCol')
+    " If FoldAtCol is specified relative to textwidth, get the absolute value
+    if (s:OrigamiFoldAtCol =~ '^[+-]')
+      let s:OrigamiFoldAtCol = &textwidth + eval(s:OrigamiFoldAtCol)
+    endif
     if s:OrigamiFoldAtCol
-      let s:OrigamiFoldAtCol -= (len(s:OrigamiCommentString[0]) + 1)
+      let s:OrigamiFoldAtCol -= (len(s:OrigamiCommentString[0]) + 2)
     else
       let s:OrigamiIncAllLines = s:Get('OrigamiIncAllLines')
     endif

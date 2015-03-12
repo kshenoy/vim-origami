@@ -93,8 +93,13 @@ Set up Origami the way you want using the following options
 'g:OrigamiFoldAtCol'
   Type: number, Default 0
 
-  Force the markers to align at the specified column. If set to 0, this will
-  auto-detect alignment position.
+  Force the markers to align at the specified column i.e. the first character
+  of the foldmarker will lie on that column.
+  If set to 0, this will auto- detect alignment position.
+  This can also be specified relative to the textwidth setting using +/-
+>
+    :let g:OrigamiFoldAtCol = "+1"
+<
   `b:OrigamiFoldAtCol` can be specified for buffer-specific settings.
   Note: When this is enabled, it automatically disables OrigamiIncAllLines
 
