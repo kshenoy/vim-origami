@@ -11,7 +11,7 @@ endfunction
 function! s:Init()                                                                                                " {{{1
   " Description:
   "   Get all global/buffer variables and store them in script specific variables to avoid reading them in every function
-  let s:comment_string  = split(&commentstring, '%s', 1)
+  let s:comment_string  = split(s:Get('OrigamiCommentString', &commentstring), '%s', 1)
   if (len(s:comment_string) < 2)
     call add(s:comment_string, '')
   endif
@@ -61,7 +61,8 @@ function! s:ReconFolds()                                                        
   "     FoldInfo = {
   "       level = {
   "         'len': 0,
-  "         'lnums': []
+  "         'lnums': [],
+  "         'commented': 0
   "       }
   "     }
   let l:fold_info = {}
@@ -83,9 +84,10 @@ function! s:ReconFolds()                                                        
     if !empty(l:match)
       let l:foldlevel = (l:match[2] == '' ? 0 : l:match[2])
       if (!has_key(l:fold_info, l:foldlevel))
-        let l:fold_info[l:foldlevel] = {'len': s:fold_at_col, 'lnums': []}
+        let l:fold_info[l:foldlevel] = {'commented': 0, 'len': s:fold_at_col, 'lnums': []}
       endif
       let l:fold_info[l:foldlevel].len = max([len(l:line) + s:padding, l:fold_info[l:foldlevel].len])
+      let l:fold_info[l:foldlevel].commented = l:fold_info[l:foldlevel].commented || (l:match[1] != '')
       call add(l:fold_info[l:foldlevel].lnums, l:lnum)
     elseif s:inc_all_lines
       for l:foldlevel in keys(l:fold_info)
@@ -101,22 +103,19 @@ function! s:ReconFolds()                                                        
      \ && !s:separate_levels
      \ )
       let l:len_max = 0
+      let l:commented = 0
       for l:foldlevel in keys(l:fold_info)
-        if (l:len_max < l:fold_info[l:foldlevel].len)
-          let l:len_max = l:fold_info[l:foldlevel].len
-        else
-          let l:fold_info[l:foldlevel].len = l:len_max
-        endif
+        let l:len_max = max([l:len_max, l:fold_info[l:foldlevel].len])
+        let l:commented = (l:commented || l:fold_info[l:foldlevel].commented)
       endfor
       for l:foldlevel in keys(l:fold_info)
-        if (l:fold_info[l:foldlevel].len == l:len_max)
-          break
-        endif
         let l:fold_info[l:foldlevel].len = l:len_max
+        let l:fold_info[l:foldlevel].commented = l:commented
       endfor
     endif
   endif
 
+  " echo l:fold_info
   return l:fold_info
 endfunction
 
@@ -171,15 +170,23 @@ function! origami#AlignFoldmarkers(...)                                         
       let l:match = matchlist(l:line, s:fmr_regex_pre_level . l:foldlevel_str . s:fmr_regex_post_level)
       " l:match[1] - Open comment
       " l:match[2] - Close comment
-      if l:match[1] == "" | let l:match[1] = repeat(" ", len(s:comment_string[0])) | endif
+
+      if (  (l:match[1] == "")
+       \ && l:fold_info[l:foldlevel].commented
+       \ )
+        let l:match[1] = repeat(" ", len(s:comment_string[0]))
+      endif
+
       if l:match[2] != "" | let l:match[2] = " " . l:match[2] | endif
+
       let l:stagger_pad = repeat(' ', (l:foldlevel - min(keys(l:fold_info))) * s:staggered_spacing)
 
       " ... remove the original marker and pad the line and add a new marker to align it with the rest
       let l:line = substitute(l:line, s:fmr_regex_pre_level . l:foldlevel_str . s:fmr_regex_post_level, '', "")
 
-      let l:line .= s:PaddedFmrString(len(l:line), l:fold_info[l:foldlevel].len) . l:match[1] . " " . l:stagger_pad
+      let l:line .= s:PaddedFmrString(len(l:line), l:fold_info[l:foldlevel].len) . l:match[1] . l:stagger_pad
                     \ . s:fmr[0] . l:foldlevel_str . l:match[2]
+
       call setline(l:lnum, l:line)
     endfor
   endfor
