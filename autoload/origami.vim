@@ -4,58 +4,54 @@
 function! s:Get(var, ...)                                                                                         " {{{1
   " Description:
   "   Returns the buffer-local variable, global variable or the default value
-  if exists('b:' . a:var)
-    return eval('b:' . a:var)
-  elseif exists('g:' . a:var)
-    return eval('g:' . a:var)
-  elseif a:0
-    return a:1
-  endif
+  return get(b:, a:var, get(g:, a:var))
 endfunction
 
 
 function! s:Init()                                                                                                " {{{1
   " Description:
   "   Get all global/buffer variables and store them in script specific variables to avoid reading them in every function
-  let s:OrigamiCommentString    = split(s:Get('OrigamiCommentString', &commentstring), '%s')
-  if len(s:OrigamiCommentString) == 0 | let s:OrigamiCommentString = ["", ""] | endif
-  if len(s:OrigamiCommentString) == 1 | call add(s:OrigamiCommentString, "")  | endif
+  let s:comment_string  = split(&commentstring, '%s', 1)
+  if (len(s:comment_string) < 2)
+    call add(s:comment_string, '')
+  endif
 
-  let s:fmr            = split( &foldmarker, ',' )
-  let s:OrigamiPadding = s:Get('OrigamiPadding') * (&expandtab ? 1 : &tabstop)
+  let s:fmr               = split(&foldmarker, ',')
+  let s:fold_at_col       = 0
+  let s:inc_all_lines     = 0
+  let s:staggered_spacing = 0
+  let s:separate_levels   = s:Get('OrigamiSeparateLevels')
+  let s:padding           = s:Get('OrigamiPadding')
 
-  let s:OrigamiFoldAtCol        = 0
-  let s:OrigamiIncAllLines      = 0
-  let s:OrigamiStaggeredSpacing = 0
-  let s:OrigamiSeparateLevels   = s:Get('OrigamiSeparateLevels')
+  let s:fmr_regex_pre_level  = '\s*\(' . escape(s:comment_string[0], '*') . '\)\?\s*' . s:fmr[0]
+  let s:fmr_regex_post_level = '\s*\(' . escape(s:comment_string[1], '*') . '\)\?\s*$'
+  let s:fmr_regex            = s:fmr_regex_pre_level . '\(\d*\)' . s:fmr_regex_post_level
 
-  if !s:OrigamiSeparateLevels
-    let s:OrigamiFoldAtCol = s:Get('OrigamiFoldAtCol')
+  if !s:separate_levels
+    let s:fold_at_col = s:Get('OrigamiFoldAtCol')
     " If FoldAtCol is specified relative to textwidth, get the absolute value
-    if (s:OrigamiFoldAtCol =~ '^[+-]')
-      let s:OrigamiFoldAtCol = &textwidth + eval(s:OrigamiFoldAtCol)
+    if (s:fold_at_col =~ '^[+-]')
+      let s:fold_at_col = &textwidth + eval(s:fold_at_col)
     endif
-    if s:OrigamiFoldAtCol
-      let s:OrigamiFoldAtCol -= (len(s:OrigamiCommentString[0]) + 2)
+    if s:fold_at_col
+      let s:fold_at_col -= (len(s:comment_string[0]) + 2)
     else
-      let s:OrigamiIncAllLines = s:Get('OrigamiIncAllLines')
+      let s:inc_all_lines = s:Get('OrigamiIncAllLines')
     endif
-    let s:OrigamiStaggeredSpacing = s:Get('OrigamiStaggeredSpacing') * (&expandtab ? 1 : &tabstop)
+    let s:staggered_spacing = s:Get('OrigamiStaggeredSpacing') * (&expandtab ? 1 : &tabstop)
   endif
 endfunction
 
 
 function! origami#Debug()                                                                                         " {{{1
   call s:Init()
-  echo "OrigamiCommentString    : "
-  echo s:OrigamiCommentString
-  echo "OrigamiSeparateLevels   : " . s:OrigamiSeparateLevels
-  echo "OrigamiFoldAtCol        : " . s:OrigamiFoldAtCol
-  echo "OrigamiIncAllLines      : " . s:OrigamiIncAllLines
-  echo "OrigamiStaggeredSpacing : " . s:OrigamiStaggeredSpacing
-  echo "OrigamiPadding          : " . s:OrigamiPadding
-  echo "Foldmarkers             : "
-  echo s:fmr
+  echo "OrigamiCommentString    : " . "[" . join(s:comment_string, ', ') . "]"
+  echo "OrigamiSeparateLevels   : " . s:separate_levels
+  echo "OrigamiFoldAtCol        : " . s:fold_at_col
+  echo "OrigamiIncAllLines      : " . s:inc_all_lines
+  echo "OrigamiStaggeredSpacing : " . s:staggered_spacing
+  echo "OrigamiPadding          : " . s:padding
+  echo "Foldmarkers             : " . "[" . join(s:fmr, ', ') . "]"
 endfunction
 
 
@@ -76,49 +72,47 @@ function! s:ReconFolds()                                                        
     let l:line = getline(l:lnum)
 
     " ... check if a foldmarker is present at the end and if it does ...
-    let l:match = matchlist(l:line, '\s*\(' . escape(s:OrigamiCommentString[0], '*') . '\)\?\s*' . s:fmr[0]
-                  \ . '\(\d*\)\s*\(' . escape(s:OrigamiCommentString[1], '*') . '\)\?\s*$')
+    let l:match = matchlist(l:line, s:fmr_regex)
       " l:match[1] - Comment string start
       " l:match[2] - Foldlevel
       " l:match[3] - Comment string end
 
     " ... remove the foldmarker
-    let l:line = substitute(l:line, '\s*\(' . escape(s:OrigamiCommentString[0], '*') . '\)\?\s*\(' . s:fmr[0]
-                 \ . '\)\?\(\d*\)\s*\(' . escape(s:OrigamiCommentString[1], '*') . '\)\?\s*$', '', "")
+    let l:line = substitute(l:line, s:fmr_regex, '', "")
 
     if !empty(l:match)
       let l:foldlevel = (l:match[2] == '' ? 0 : l:match[2])
       if (!has_key(l:fold_info, l:foldlevel))
-        let l:fold_info[l:foldlevel] = {'len': 0, 'lnums': []}
+        let l:fold_info[l:foldlevel] = {'len': s:fold_at_col, 'lnums': []}
       endif
-      let l:fold_info[l:foldlevel].len = max([len(l:line), get(l:fold_info[l:foldlevel], 'len'), s:OrigamiFoldAtCol])
+      let l:fold_info[l:foldlevel].len = max([len(l:line) + s:padding, l:fold_info[l:foldlevel].len])
       call add(l:fold_info[l:foldlevel].lnums, l:lnum)
-    elseif s:OrigamiIncAllLines
+    elseif s:inc_all_lines
       for l:foldlevel in keys(l:fold_info)
-        let l:fold_info[l:foldlevel].len = max([len(l:line), get(l:fold_info[l:foldlevel], 'len'), s:OrigamiFoldAtCol])
+        let l:fold_info[l:foldlevel].len = max([len(l:line) + s:padding, l:fold_info[l:foldlevel].len])
       endfor
     endif
   endfor
 
   " Loop over l:fold_info and adjust the values of len
-  if !s:Get('OrigamiFoldAtCol')
+  if !s:fold_at_col
     " If neither of SeparateLvls or StaggeredSpacing are set, set the length of all foldlevels to the longest of them
-    if (  !s:OrigamiStaggeredSpacing
-     \ && !s:OrigamiSeparateLevels
+    if (  !s:staggered_spacing
+     \ && !s:separate_levels
      \ )
       let l:len_max = 0
       for l:foldlevel in keys(l:fold_info)
-        let l:len_max = max([l:len_max, l:fold_info[l:foldlevel].len])
+        if (l:len_max < l:fold_info[l:foldlevel].len)
+          let l:len_max = l:fold_info[l:foldlevel].len
+        else
+          let l:fold_info[l:foldlevel].len = l:len_max
+        endif
       endfor
       for l:foldlevel in keys(l:fold_info)
+        if (l:fold_info[l:foldlevel].len == l:len_max)
+          break
+        endif
         let l:fold_info[l:foldlevel].len = l:len_max
-      endfor
-    endif
-
-    " Add Padding to all the levels
-    if s:OrigamiPadding
-      for l:foldlevel in keys(l:fold_info)
-        let l:fold_info[l:foldlevel].len += s:OrigamiPadding
       endfor
     endif
   endif
@@ -174,17 +168,15 @@ function! origami#AlignFoldmarkers(...)                                         
 
       let l:foldlevel_str = (l:foldlevel == 0 ? "" : l:foldlevel)
       " ... check if a foldmarker is present at the end and if it does ...
-      let l:match = matchlist(l:line, '\s*\(' . escape(s:OrigamiCommentString[0], '*') . '\)\?\s*' . s:fmr[0]
-                    \ . l:foldlevel_str . '\s*\(' . escape(s:OrigamiCommentString[1], '*') . '\)\?\s*$')
+      let l:match = matchlist(l:line, s:fmr_regex_pre_level . l:foldlevel_str . s:fmr_regex_post_level)
       " l:match[1] - Open comment
       " l:match[2] - Close comment
-      if l:match[1] == "" | let l:match[1] = repeat(" ", len(s:OrigamiCommentString[0])) | endif
+      if l:match[1] == "" | let l:match[1] = repeat(" ", len(s:comment_string[0])) | endif
       if l:match[2] != "" | let l:match[2] = " " . l:match[2] | endif
-      let l:stagger_pad = repeat(' ', (l:foldlevel - min(keys(l:fold_info))) * s:OrigamiStaggeredSpacing)
+      let l:stagger_pad = repeat(' ', (l:foldlevel - min(keys(l:fold_info))) * s:staggered_spacing)
 
       " ... remove the original marker and pad the line and add a new marker to align it with the rest
-      let l:line = substitute(l:line, '\s*\(' . escape(s:OrigamiCommentString[0], '*') . '\)\?\s*' . s:fmr[0]
-                   \  . l:foldlevel_str . '\s*\(' . escape(s:OrigamiCommentString[1], '*') . '\)\?\s*$', '', "")
+      let l:line = substitute(l:line, s:fmr_regex_pre_level . l:foldlevel_str . s:fmr_regex_post_level, '', "")
 
       let l:line .= s:PaddedFmrString(len(l:line), l:fold_info[l:foldlevel].len) . l:match[1] . " " . l:stagger_pad
                     \ . s:fmr[0] . l:foldlevel_str . l:match[2]
@@ -206,15 +198,15 @@ function! origami#InsertFoldmarker(mode, comment_mode, lvl)                     
   call s:Init()
 
   " When input is a Num, do what comment_mode says
-  let l:OrigamiCommentString = (a:comment_mode ==? "comment" ? s:OrigamiCommentString : [ "", "" ])
+  let l:comment_string = (a:comment_mode ==? "comment" ? s:comment_string : ["", ""])
   let l:lvl = (a:lvl =~# '0' ? "" : a:lvl)
 
   let s:fmr  = split(&foldmarker, ',')
   let l:line = getline('.')
   let l:mode = (a:mode ==? "close")
 
-  let l:line = substitute(l:line, '\s*$', ' ' . l:OrigamiCommentString[0] . s:fmr[l:mode] . l:lvl . l:OrigamiCommentString[1], "")
-  call setline( '.', l:line )
+  let l:line = substitute(l:line, '\s*$', l:comment_string[0] . s:fmr[l:mode] . l:lvl . l:comment_string[1], "")
+  call setline('.', l:line)
 
   call origami#AlignFoldmarkers(l:lvl)
 endfunction
@@ -225,7 +217,6 @@ function! origami#DeleteFoldmarker()                                            
   call s:Init()
 
   let l:line = getline('.')
-  let l:line = substitute(l:line, '\s*\(' . escape(s:OrigamiCommentString[0], '*') . '\)\?\s*' . s:fmr[0]
-               \ . '\(\d*\)\s*\(' . escape(s:OrigamiCommentString[1], '*') . '\)\?\s*$', '', "" )
-  call setline( '.', l:line )
+  let l:line = substitute(l:line, s:fmr_regex, '', "")
+  call setline('.', l:line)
 endfunction
