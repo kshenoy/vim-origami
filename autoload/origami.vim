@@ -4,7 +4,7 @@
 function! s:Get(var, ...)                                                                                         " {{{1
   " Description:
   "   Returns the buffer-local variable, global variable or the default value
-  return get(b:, a:var, get(g:, a:var))
+  return get(b:, a:var, get(g:, a:var, (a:0 ? a:1 : '')))
 endfunction
 
 
@@ -33,8 +33,8 @@ function! s:Init()                                                              
     if (s:fold_at_col =~ '^[+-]')
       let s:fold_at_col = &textwidth + eval(s:fold_at_col)
     endif
-    if s:fold_at_col
-      let s:fold_at_col -= (len(s:comment_string[0]) + 2)
+    if (s:fold_at_col != 0)
+      let s:fold_at_col -= len(s:comment_string[0])
     else
       let s:inc_all_lines = s:Get('OrigamiIncAllLines')
     endif
@@ -45,13 +45,13 @@ endfunction
 
 function! origami#Debug()                                                                                         " {{{1
   call s:Init()
-  echo "OrigamiCommentString    : " . "[" . join(s:comment_string, ', ') . "]"
+  echo "OrigamiCommentString    : " . "[" . join(s:comment_string, ',') . "]"
   echo "OrigamiSeparateLevels   : " . s:separate_levels
   echo "OrigamiFoldAtCol        : " . s:fold_at_col
   echo "OrigamiIncAllLines      : " . s:inc_all_lines
   echo "OrigamiStaggeredSpacing : " . s:staggered_spacing
   echo "OrigamiPadding          : " . s:padding
-  echo "Foldmarkers             : " . "[" . join(s:fmr, ', ') . "]"
+  echo "Foldmarkers             : " . "[" . join(s:fmr, ',') . "]"
 endfunction
 
 
