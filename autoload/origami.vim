@@ -115,7 +115,7 @@ function! s:ReconFolds()                                                        
     endif
   endif
 
-  echo l:fold_info
+  " echo l:fold_info
   return l:fold_info
 endfunction
 
